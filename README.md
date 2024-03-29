@@ -1,6 +1,7 @@
 # Pour lancer le jeu exécuter : python main.py
 
 Histoire de mineur est une version étendue du célèbre jeu du démineur
+Il s'agit de découvrir l'emplacement de bombes cachées dans un carte représentée par une grille dont il faut découvrir les différentes cases. Dans cette nouvelle version, des objets sont ajoutés et occupent également la grille. Si toutes les bombes sont balisées par le joueur, la manche est gagnée mais il faut aussi trouver et prélever les objets découverts ...
 
 Il y a un système de manche.
 Première manche: **10% de bombes**.
