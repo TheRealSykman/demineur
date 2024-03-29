@@ -419,7 +419,7 @@ class Game:
             self.clock.tick(60)
 
 pygame.mixer.init(channels = 1, buffer = 2048)
-pygame.mixer.music.load("sounds/music.ogg")
+pygame.mixer.music.load("sounds/music.mp3")
 pygame.init()
 pygame.mixer.music.set_volume(0.25)
 pygame.mixer.music.play(-1)
