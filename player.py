@@ -43,7 +43,7 @@ class Player:
     """
 
     def __init__(self, game):
-        self.discovered_items = [COIN, MAGNIFIER, METAL_SCRAP, SHIELD, UPGRADER, BIONIC_GLASSES, ARMOR, JAMMER, RIFLE]
+        self.discovered_items = []
         self.game = game
         self.x = self.game.screen_width - self.game.gui_width
         self.y = self.game.screen_height - self.game.gui_width
