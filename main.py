@@ -284,7 +284,6 @@ class Game:
         """
         if not (self.is_trading and self.is_trader_dead):
             self.gui.display()
-            self.test.display()
             if not self.is_trading:
                 pygame.draw.rect(self.screen, (152, 199, 64),
                     pygame.Rect(0, 0,
@@ -293,6 +292,8 @@ class Game:
                 pygame.draw.rect(self.screen, (152, 199, 64),
                 pygame.Rect(self.screen_width - self.x_offset - self.gui_width, 0,
                             self.x_offset, self.screen_height))
+
+            self.test.display()
 
         for item in self.player.discovered_items:
             self.items[item].display()
