@@ -16,6 +16,7 @@ from gui import Gui
 from item import Item
 from player import Player
 from trader import Trader
+from say import Speech_bubble
 
 LEFT_CLICK, MIDDLE_CLICK, RIGHT_CLICK, = list(range(1, 4))
 
@@ -86,8 +87,8 @@ ANIMATION_SETTINGS = {
     PLAYER_GLASSES:             [0, 2, [True, 0]],
     PLAYER_GLASSES_SHIELD:      [5, 2, [True, 0]],
     PLAYER_SHIELD:              [5, 2, [True, 0]],
-    PLAYER_GLASSES_ARMOR:       [2, 2, [True, 0]],
-    PLAYER_ARMOR:               [2, 2, [True, 0]],
+    PLAYER_GLASSES_ARMOR:       [1, 2, [True, 0]],
+    PLAYER_ARMOR:               [1, 2, [True, 0]],
     PLAYER_SUICIDE:             [3, 3, [False, 1]],
     PLAYER_SUICIDE_ARMOR:       [3, 2, [False, 1]],
     PLAYER_UPGRADER:            [0, 60, [True, 0]],
@@ -131,14 +132,11 @@ class Game:
     x_offset (int): The x-coordinate of the left edge of the game grid in pixels.
     y_offset (int): The y-coordinate of the top edge of the game grid in pixels.
     """
-
     def __init__(self, screen, width: int, height: int):
-        #self.sweeping_sound = pygame.mixer.Sound("sounds/sweeping.wav")
-        #self.item_collected = pygame.mixer.Sound("sounds/item_collected.wav")
-        self.k_pressed = False
-        self.l_pressed = False
-        self.m_pressed = False
-        self.space_pressed = False
+        self.sweeping_sound = pygame.mixer.Sound("sounds/sweeping.wav")
+        self.item_collected = pygame.mixer.Sound("sounds/item_collected.wav")
+        self.gunshot = pygame.mixer.Sound("sounds/gunshot.mp3")
+        self.gunshot.set_volume(0.1)
         self.round = 1
         self.screen = screen
         self.clock = pygame.time.Clock()
@@ -176,10 +174,12 @@ class Game:
         }
 
         self.trader = Trader(self)
-        self.is_trading = True
+        self.is_trading = False
         self.is_trader_dead = False
         self.white = True
         self.current_time_already_exists = False
+        self.sound_played = False
+        self.player_is_dead = False
 
         self.square_size = int(min((self.screen_width - self.gui_width) / self.width, self.screen_height / self.height))
         self.x_offset = round((self.screen_width - self.gui_width - self.width * self.square_size) / 2)
@@ -187,6 +187,7 @@ class Game:
         self.animations = {}
         self.player_state = PLAYER_INACTIVE
         self.latest_player_state = self.player_state
+        self.test = Speech_bubble(self, "Je n'ai pas eu le temps de dire plus que ça, mais j'espère que vous comprendrez que certaines personnes n'ont pas eu le temps de me finir. On a qu'à dire que je suis devenu muet.")
 
     def handling_events(self):
         """
@@ -198,89 +199,78 @@ class Game:
         Returns:
             None
         """
-        for item in self.player.discovered_items:
-            self.items[item].is_clicked()
+        if not self.player_is_dead:
+            for item in self.player.discovered_items:
+                self.items[item].is_clicked()
 
-        if self.m_pressed:
-            self.round += 1
-            self.run()
-
-        elif self.l_pressed and self.round > 1:
-            self.round -= 1
-            self.run()
-
-        events = pygame.event.get()
-        for event in events:
-            if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                # pygame.mixer.music.fadeout(1000)
-                # pygame.time.delay(1000)
-                pygame.quit()
-                sys.exit()
-
-        if not self.is_trading:
+            events = pygame.event.get()
             for event in events:
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button in [1, 2, 3]:
-                    # This block of code handles mouse clicks.
+                if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    pygame.mixer.music.fadeout(1000)
+                    pygame.time.delay(1000)
+                    pygame.quit()
+                    sys.exit()
 
-                    mouse_position = pygame.mouse.get_pos()
-                    cell = ((mouse_position[0] - self.x_offset) // self.square_size,
-                            (mouse_position[1] - self.y_offset) // self.square_size)
+            if not self.is_trading:
+                for event in events:
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button in [1, 2, 3]:
+                        # This block of code handles mouse clicks.
 
-                    if cell in self.grid.grid:
-                        if self.is_first_click:
-                            self.grid.create_grid(cell)
-                            # on tire les bombes au hasard
-                            # en donnant cell afin que
-                            # celui-ci ne soit pas une bombe
+                        mouse_position = pygame.mouse.get_pos()
+                        cell = ((mouse_position[0] - self.x_offset) // self.square_size,
+                                (mouse_position[1] - self.y_offset) // self.square_size)
 
-                            self.grid.cell_clicked(LEFT_CLICK, cell)
-                            # afin de définir la cellules
-                            # comme découverte (puisque
-                            # elle ne peut pas être une bombe)
-                            self.is_first_click = False
-                            pygame.display.set_caption(f"Vous avez {self.grid.flag_to_place} {'drapeau' if self.grid.flag_to_place in [-1, 0, 1] else 'drapeaux'} à placer ! (manche {self.round})")
+                        if cell in self.grid.grid:
+                            if self.is_first_click:
+                                self.grid.create_grid(cell)
+                                # on tire les bombes au hasard
+                                # en donnant cell afin que
+                                # celui-ci ne soit pas une bombe
+
+                                self.grid.cell_clicked(LEFT_CLICK, cell)
+                                # afin de définir la cellules
+                                # comme découverte (puisque
+                                # elle ne peut pas être une bombe)
+                                self.is_first_click = False
+                                pygame.display.set_caption(f"Vous avez {self.grid.flag_to_place} {'drapeau' if self.grid.flag_to_place in [-1, 0, 1] else 'drapeaux'} à placer ! (manche {self.round})")
+
+                            else:
+                                self.grid.cell_clicked(event.button, cell)
 
                         else:
-                            self.grid.cell_clicked(event.button, cell)
+                            for item in self.player.discovered_items:
+                                if item != COIN:
+                                    self.items[item].is_clicked()
 
-                    else:
-                        for item in self.player.discovered_items:
-                            if item != COIN:
-                                self.items[item].is_clicked()
+                            self.player.is_clicked()
 
-                        self.player.is_clicked()
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_SPACE:
+                            print(self.grid.not_hidden_cells, self.grid.safe_cells_number)
+                            if self.grid.not_hidden_cells == self.grid.safe_cells_number:
+                                self.round += 1
 
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_m:
-                        self.m_pressed = True
+                                if self.round < 3:
+                                    self.run()
 
-                    elif event.key == pygame.K_l:
-                        self.l_pressed = True
+                                else:
+                                    self.is_trading = True
+                                    self.run()
 
-                    elif event.key == pygame.K_SPACE:
-                        self.space_pressed = True
+            elif self.is_trading and not self.is_trader_dead:
+                for event in events:
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        self.trader.handling_events()
 
-                    elif event.key == pygame.K_k and not self.k_pressed:
-                        self.k_pressed = True
+        else:
+            delay = 2500
+            if not self.current_time_already_exists:
+                self.current_time = pygame.time.get_ticks()
+                self.current_time_already_exists = True
 
-                        if self.is_first_click:
-                            mouse_position = pygame.mouse.get_pos()
-                            cell = ((mouse_position[0] - self.x_offset) // self.square_size,
-                                    (mouse_position[1] - self.y_offset) // self.square_size)
-
-                            if not cell in self.grid.grid:
-                                cell = (9, 9)
-
-                            self.grid.create_grid(cell)
-                            self.grid.cell_clicked(LEFT_CLICK, cell)
-                            self.is_first_click = False
-
-                        self.grid.debug()
-
-        elif self.is_trading and not self.is_trader_dead:
-            for event in events:
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    self.trader.handling_events()
+            if self.current_time + delay <= pygame.time.get_ticks():
+                self.__init__(self.screen, 18, 18)
+                self.run()
 
     def display(self):
         """
@@ -292,7 +282,18 @@ class Game:
         Returns:
             None
         """
-        self.gui.display()
+        if not (self.is_trading and self.is_trader_dead):
+            self.gui.display()
+            self.test.display()
+            if not self.is_trading:
+                pygame.draw.rect(self.screen, (152, 199, 64),
+                    pygame.Rect(0, 0,
+                                self.x_offset, self.screen_height))
+
+                pygame.draw.rect(self.screen, (152, 199, 64),
+                pygame.Rect(self.screen_width - self.x_offset - self.gui_width, 0,
+                            self.x_offset, self.screen_height))
+
         for item in self.player.discovered_items:
             self.items[item].display()
 
@@ -300,30 +301,25 @@ class Game:
             self.player.display(self.player_state, 5, 5, ANIMATION_SETTINGS[self.player_state][FPS_NUMBER], [True, 0])
             self.player.animation.sprite_index = 5
             self.player.animation.lock_anim = False
-            
-        elif self.player_state in [PLAYER_SUICIDE, PLAYER_SUICIDE_ARMOR, PLAYER_SHIELD, PLAYER_GLASSES_SHIELD, PLAYER_UPGRADER_SHIELD, PLAYER_MAGNIFIER_SHIELD, PLAYER_ARMOR, PLAYER_GLASSES_ARMOR, PLAYER_UPGRADER_ARMOR, PLAYER_MAGNIFIER_ARMOR] and not self.player_suicide and not self.bomb_exploding:
+
+        elif self.player_state in [PLAYER_SUICIDE_ARMOR, PLAYER_SHIELD, PLAYER_GLASSES_SHIELD, PLAYER_UPGRADER_SHIELD, PLAYER_MAGNIFIER_SHIELD, PLAYER_ARMOR, PLAYER_GLASSES_ARMOR, PLAYER_UPGRADER_ARMOR, PLAYER_MAGNIFIER_ARMOR] and not self.bomb_exploding:
             self.player.display(self.player_state, 0, 0, ANIMATION_SETTINGS[self.player_state][FPS_NUMBER], [False, 0])
+
+        elif self.player_state == PLAYER_SUICIDE and not self.player_suicide:
+            self.player.display(self.player_state, 0, 0, ANIMATION_SETTINGS[self.player_state][FPS_NUMBER], ANIMATION_SETTINGS[self.player_state][LOOP])
 
         elif self.bomb_exploding:
             self.player.animation.lock_anim = False
-            self.player.display(self.latest_player_state, 1, ANIMATION_SETTINGS[self.latest_player_state][FRAME_NUMBER], ANIMATION_SETTINGS[self.latest_player_state][FPS_NUMBER], [False, 1])
-            
+            self.player.display(self.latest_player_state, 0, ANIMATION_SETTINGS[self.latest_player_state][FRAME_NUMBER], ANIMATION_SETTINGS[self.latest_player_state][FPS_NUMBER], [False, 0])
+
             if self.player.animation.lock_anim:
-                self.player.animation.sprite_index = 0
                 self.bomb_exploding = False
 
         else:
+            #print(self.player_state, ANIMATION_SETTINGS[self.player_state][FRAME_NUMBER], ANIMATION_SETTINGS[self.player_state][FPS_NUMBER], ANIMATION_SETTINGS[self.player_state][LOOP], self.player.animation.sprite_index, self.player.animation.lock_anim)
             self.player.display(self.player_state, 0, ANIMATION_SETTINGS[self.player_state][FRAME_NUMBER], ANIMATION_SETTINGS[self.player_state][FPS_NUMBER], ANIMATION_SETTINGS[self.player_state][LOOP])
 
         if not self.is_trading:
-            pygame.draw.rect(self.screen, (152, 199, 64),
-                pygame.Rect(0, 0,
-                            self.x_offset, self.screen_height))
-
-            pygame.draw.rect(self.screen, (152, 199, 64),
-               pygame.Rect(self.screen_width - self.x_offset - self.gui_width, 0,
-                           self.x_offset, self.screen_height))
-
             for coordinates, animation in self.animations.items():
                 if animation.filename[8:-4] != "flag_sheet":
                     color = (229, 194, 159) if (coordinates[0] + coordinates[1]) % 2 == 0 else (215, 184, 153)
@@ -346,23 +342,37 @@ class Game:
             self.trader.display()
             self.trader.sign_hovered()
             self.coin.display()
-            
+
             if RIFLE in self.player.discovered_items:
                 self.items[RIFLE].display()
 
         elif self.is_trading and self.is_trader_dead:
             if self.white:
                 self.screen.fill((255, 255, 255))
+                if not self.sound_played:
+                    self.gunshot.play()
+                    self.sound_played = True
+
                 if not self.current_time_already_exists:
                     self.current_time = pygame.time.get_ticks()
                     self.current_time_already_exists = True
+                    pygame.mixer.music.stop()
+                    pygame.mixer.music.unload()
+                    pygame.mixer.music.load("sounds/ending_music.ogg")
+                    pygame.mixer.music.play(1)
 
-                delay = 80
-                if self.current_time + delay <= pygame.time.get_ticks():
+                white_delay = 80
+                if self.current_time + white_delay <= pygame.time.get_ticks():
                     self.white = False
-            
+
             else:
                 self.screen.fill((0, 0, 0))
+
+                paper_delay = 8040
+                if self.current_time + paper_delay <= pygame.time.get_ticks():
+                    letter_image = pygame.image.load("sprites/letter.png").convert_alpha()
+                    letter_image = pygame.transform.scale(letter_image, (self.screen_width, self.screen_height))
+                    self.screen.blit(letter_image, (0, 0))
 
         pygame.display.flip()
 
@@ -408,11 +418,11 @@ class Game:
             self.display()
             self.clock.tick(60)
 
-# pygame.mixer.init(channels = 1, buffer = 2048)
-# pygame.mixer.music.load("sounds/music.ogg")
+pygame.mixer.init(channels = 1, buffer = 2048)
+pygame.mixer.music.load("sounds/music.ogg")
 pygame.init()
-# pygame.mixer.music.set_volume(0.25)
-# pygame.mixer.music.play(-1)
+pygame.mixer.music.set_volume(0.25)
+pygame.mixer.music.play(-1)
 
 screen = pygame.display.set_mode((1200, 650))
 game = Game(screen, 18, 18)
