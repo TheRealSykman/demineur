@@ -29,7 +29,7 @@ class Gui:
     def __init__(self, game, gui_width):
         self.game = game
         self.color = (135, 135, 135)
-        self.gui_width = gui_width + 1
+        self.gui_width = gui_width + 5
         self.offset_y = self.game.screen_height * 1/100
 
     def display(self):
