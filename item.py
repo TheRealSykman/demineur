@@ -124,7 +124,6 @@ class Item():
         self.rect.x = self.x
         self.rect.y = self.y
         self.amount = 0
-        self.amount += 100
 
         if self.value == SHIELD:
             self.health_point = 1
@@ -223,7 +222,7 @@ class Item():
                                         else:
                                             if self.amount > 0:
                                                 if self.game.player.active_equipped is None:
-                                                    
+
                                                     self.game.player.active_equipped = self.value
                                                     self.amount -= 1
 
@@ -247,7 +246,7 @@ class Item():
                             if self.game.player.active_equipped != self.value:
                                 self.game.player.active_equipped = self.value
                                 self.amount -= 1
-                                
+
                             else:
                                 self.picked()
                                 self.game.player.active_equipped = None
