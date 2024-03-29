@@ -1,4 +1,4 @@
-Pour lancer le jeu exécuter : python main.py
+# Pour lancer le jeu exécuter : python main.py
 
 Histoire de mineur est une version étendue du célèbre jeu du démineur
 
