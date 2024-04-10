@@ -16,7 +16,7 @@ from gui import Gui
 from item import Item
 from player import Player
 from trader import Trader
-from say import Speech_bubble
+from speech_bubble import Speech_bubble
 
 LEFT_CLICK, MIDDLE_CLICK, RIGHT_CLICK, = list(range(1, 4))
 
@@ -133,10 +133,10 @@ class Game:
     y_offset (int): The y-coordinate of the top edge of the game grid in pixels.
     """
     def __init__(self, screen, width: int, height: int):
-        self.sweeping_sound = pygame.mixer.Sound("sounds/sweeping.wav")
-        self.item_collected = pygame.mixer.Sound("sounds/item_collected.wav")
-        self.gunshot = pygame.mixer.Sound("sounds/gunshot.mp3")
-        self.gunshot.set_volume(0.1)
+        self.sweeping_sound = pygame.mixer.Sound("sounds/sweeping.ogg")
+        self.item_collected = pygame.mixer.Sound("sounds/item_collected.ogg")
+        self.gunshot = pygame.mixer.Sound("sounds/gunshot.ogg")
+        self.gunshot.set_volume(0.3)
         self.round = 1
         self.screen = screen
         self.clock = pygame.time.Clock()
@@ -187,7 +187,8 @@ class Game:
         self.animations = {}
         self.player_state = PLAYER_INACTIVE
         self.latest_player_state = self.player_state
-        self.test = Speech_bubble(self, "Je n'ai pas eu le temps de dire plus que ça, mais j'espère que vous comprendrez que certaines personnes n'ont pas eu le temps de me finir. On a qu'à dire que je suis devenu muet.")
+        self.speech_bubble = Speech_bubble(self, "Je n'ai pas eu le temps de dire plus que ça, mais j'espère que vous comprendrez que certaines personnes n'ont pas eu le temps de me finir. On a qu'à dire que je suis devenu muet.")
+        self.already_said_press_space = False
 
     def handling_events(self):
         """
@@ -244,13 +245,17 @@ class Game:
 
                             self.player.is_clicked()
 
+                    elif not self.already_said_press_space and self.grid.not_hidden_cells == self.grid.safe_cells_number:
+                        self.speech_bubble.change_speech("Maintenant que j'ai découvert toutes les cases présentes, je devrais presser la touche espace afin d'accéder à la manche à venir...")
+                        self.already_said_press_space = True
+
                     elif event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_SPACE:
-                            print(self.grid.not_hidden_cells, self.grid.safe_cells_number)
+                            self.already_said_press_space = True
                             if self.grid.not_hidden_cells == self.grid.safe_cells_number:
                                 self.round += 1
 
-                                if self.round < 3:
+                                if self.round < 4:
                                     self.run()
 
                                 else:
@@ -283,7 +288,6 @@ class Game:
             None
         """
         if not (self.is_trading and self.is_trader_dead):
-            self.gui.display()
             if not self.is_trading:
                 pygame.draw.rect(self.screen, (152, 199, 64),
                     pygame.Rect(0, 0,
@@ -293,7 +297,8 @@ class Game:
                 pygame.Rect(self.screen_width - self.x_offset - self.gui_width, 0,
                             self.x_offset, self.screen_height))
 
-            self.test.display()
+            self.gui.display()
+            self.speech_bubble.display()
 
         for item in self.player.discovered_items:
             self.items[item].display()
@@ -317,7 +322,6 @@ class Game:
                 self.bomb_exploding = False
 
         else:
-            #print(self.player_state, ANIMATION_SETTINGS[self.player_state][FRAME_NUMBER], ANIMATION_SETTINGS[self.player_state][FPS_NUMBER], ANIMATION_SETTINGS[self.player_state][LOOP], self.player.animation.sprite_index, self.player.animation.lock_anim)
             self.player.display(self.player_state, 0, ANIMATION_SETTINGS[self.player_state][FRAME_NUMBER], ANIMATION_SETTINGS[self.player_state][FPS_NUMBER], ANIMATION_SETTINGS[self.player_state][LOOP])
 
         if not self.is_trading:
@@ -407,12 +411,10 @@ class Game:
             self.grid = Grid(self, self.width, self.height)
 
             self.is_first_click = True
-            self.k_pressed = False
-            self.l_pressed = False
-            self.m_pressed = False
             self.animations = {}
             pygame.display.set_caption(f"Bonne chance ! (manche {self.round})")
             self.initial_time = pygame.time.get_ticks() // 60 * 10
+            self.already_said_press_space = False
 
         while True:
             self.handling_events()
@@ -420,7 +422,7 @@ class Game:
             self.clock.tick(60)
 
 pygame.mixer.init(channels = 1, buffer = 2048)
-pygame.mixer.music.load("sounds/music.mp3")
+pygame.mixer.music.load("sounds/music.ogg")
 pygame.init()
 pygame.mixer.music.set_volume(0.25)
 pygame.mixer.music.play(-1)
