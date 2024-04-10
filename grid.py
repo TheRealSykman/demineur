@@ -503,18 +503,18 @@ class Grid:
                 self.display(item)
 
     def display(self, cell: tuple[int, int]):
-"""
-Renders the grid on the screen.
+        """
+        Renders the grid on the screen.
 
-Parameters
-----------
-cell : tuple[int, int]
-    The coordinates of the cell to render.
+        Parameters
+        ----------
+        cell : tuple[int, int]
+            The coordinates of the cell to render.
 
-Returns
--------
-None
-"""
+        Returns
+        -------
+        None
+        """
         if self.grid[cell][CELL_STATE] == FLAGGED:
             if self.grid[cell][CELL_VALUE] < -1 and self.is_circled(cell):
                 if (cell[0], cell[1] * 99.9/100) in self.game.animations:
