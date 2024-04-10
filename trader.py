@@ -16,53 +16,59 @@ SHIELD =    -5
 UPGRADER =  -6
 RIFLE =     -10
 
-TALK_START = ["Ah tiens quelqu'un, tu es bien vivant dis moi ?", 
-    "Je vois tu viens donc de sortir d’un des tunnels les plus profonds de la ville-mine d’à côté après avoir entendu qu’elle allait être désaffectée.", 
-    "Désolé, mais cela va bientôt faire trois mois que le processus est terminé, il semblerait qu’on ne t’ai pas prévenu.", 
-    "Bon ce n'est pas important de toute façon, ça te dirait de jeter un coup d'oeil, j’ai quelques petits trucs à vendre et lorsque tu auras fini, tu pourra partir en suivant le panneau.", 
-    "Toujours vivant, nous verrons si ça dure.", 
-    "Tant mieux pour toi... et pour moi aussi car après tout tu es mon seul client, depuis la guerre et tout ça …", 
-    "Passons aux choses sérieuses, que veux tu aujourd’hui ?", 
-    "T’as entendu la nouvelle, apparemment les bombardements nucléaires sur les principales villes mondiales se sont arrêtés. Peut être que le conflit s’est calmé... ou peut être que tout le monde est mort !", 
-    "C’est pas comme si cela nous concernait ici de toute façon.", 
-    "Tu te rappelles quand je disais que tout le monde était mort en rigolant, et bien il semblerait... que ce soit finalement vrai, je ne croise plus un rat.", 
-    "Tu te rends compte je pourrai être le dernier humain ? ! Bon, t'es encore là mais ça ne compte pas vraiment.", 
-    "Mais bon t'imagines bien ce n’est pas la fin du monde qui arrêtera notre petit commerce, hein ?", 
-    "Te revoilà, bonjour à toi et ton argent."]     
+TALK_START = [
+    "Ah tiens quelqu'un, tu es bien vivant dis moi ?", 
+    "Je vois tu viens donc de sortir d'un des tunnels les plus profonds de la ville-mine d'à côté après avoir entendu qu'elle allait être désaffectée...", 
+    "Désolé, mais cela va bientôt faire trois mois que le processus est terminé, il semblerait qu'on ne t'ai pas prévenu.", 
+    "Bon ce n'est pas important de toute façon, ça te dirait de jeter un coup d'oeil, j'ai quelques petits trucs à vendre ! Lorsque tu auras fini, tu pourra partir en suivant le panneau à ta droite.", 
+    "Toujours vivant ?! Nous verrons si ça dure...", 
+    "Tant mieux pour toi... et pour moi aussi car après tout tu es mon seul client, depuis la guerre et tout ça...", 
+    "Passons aux choses sérieuses, que veux tu aujourd'hui ?", 
+    "T'as entendu la nouvelle ? Apparemment, les bombardements nucléaires sur les principales villes mondiales se sont arrêtés. Peut-être que le conflit s'est calmé... ou peut-être que tout le monde est mort !", 
+    "C'est pas comme si cela nous concernait de toute façon.", 
+    "Tu te rappelles quand je disais que tout le monde était mort en rigolant ? Et bien il semblerait... que ce soit finalement vrai, je ne croise plus un rat.", 
+    "Tu te rends compte je pourrai être le dernier humain ? ! Bon, t'es encore là, mais ça ne compte pas vraiment.", 
+    "Enfin bon, t'imagines bien que ce n'est pas la fin du monde qui arrêtera notre petit commerce, hein ?", 
+    "Te revoilà ! Bonjour à toi et à ton argent !"
+]
+
 """
-TALK_START is the list of the first words of the trader in function of the round.
-Index matching :
-0 : round 3, first sentence
-1 : round 3, second sentence
-2 : round 3, third sentence
-3 : round 3, fourth sentence
-4 : round 4, first sentence
-5 : round 4, second sentence
-6 : round 4, third sentence
-7 : round 5, first sentence
-8 : round 5, second sentence
-9 : round 5, third sentence
-10 : round 6, first sentence
-11 : round 6, second sentence
-12 : round 6, third sentence
-13 : after the round 6
+index 0:  round 3, 1st sentence
+index 1:  round 3, 2nd sentence
+index 2:  round 3, 3rd sentence
+index 3:  round 3, 4th sentence
+
+index 4:  round 4, 1st sentence
+index 5:  round 4, 2nd sentence
+index 6:  round 4, 3rd sentence
+
+index 7:  round 5, 1st sentence
+index 8:  round 5, 2nd sentence
+index 9:  round 5, 3rd sentence
+
+index 10: round 6, 1st sentence
+index 11: round 6, 2nd sentence
+index 12: round 6, 3rd sentence
+
+index 13: after the round 6
 """
 
-TALK_TRADE = ["On se souvient de la qualité bien plus longtemps que du prix.", 
+TALK_TRADE = [
+    "On se souvient de la qualité bien plus longtemps que du prix.", 
     "Un excellent choix !", 
     "Tu te contente de ça ?", 
     "Allez encore un...", 
     "Que ce que tu fais encore là ?", 
-    "Bon j'ai pas que ça à faire... Enfin si, mais dépêche-toi quand même."]
+    "Bon j'ai pas que ça à faire... Enfin si, mais dépêche-toi quand même."
+]
+
 """
-TALK_TRADE is the list of the words of the trader that he can say, after a trade or after a long time.
-Index matching :
-0 : after a trade
-1 : after a trade
-2 : after a trade
-3 : after a trade
-4 : after a long time
-5 : after a long time
+index 0: after a trade
+index 1: after a trade
+index 2: after a trade
+index 3: after a trade
+index 4: after a long time
+index 5: after a long time
 """
 
 class Trader:
